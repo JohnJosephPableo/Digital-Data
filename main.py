@@ -67,24 +67,48 @@ def bipolar(data):
     return signal
 
 def pseudo(data):
-    signal = np.zeros(len(data) * 2)
-    prev_bit = 1
+    size = len(data)
+    signal = np.zeros(size * 2)
+    next_bit = 0
+    one_bit = 1
+    prev_signal = 0
     for i, bit in enumerate(data):
-        if i < len(data) - 1:
+
+        if i < size - 1:
             next_bit = data[i + 1]
         else:
-            next_bit = 0 
-        if bit == 0:
-            if prev_bit == 1:
-                signal[i * 2] = 1
-                signal[i * 2 + 1] = -1
-            else:
-                signal[i * 2] = -1
-                signal[i * 2 + 1] = 1
-        else:
+            next_bit = 1
+        
+        if bit == 1:
+            if i == 0:
+                one_bit = 0
             signal[i * 2] = 0
-            signal[i * 2 + 1] = 0
-    return
+            if next_bit == 1: 
+                signal[i * 2 + 1] = 0
+            else: 
+                if one_bit == 1: 
+                    signal[i * 2 + 1] = -1
+                    one_bit = 0
+                else:
+                    signal[i * 2 + 1] = 1
+                    one_bit = 1
+                prev_signal = signal[i * 2 + 1]
+        else:
+            if i == 0:
+                prev_signal = 1
+            signal[i * 2] = prev_signal
+            if next_bit == 1:
+                signal[i * 2 + 1] = 0
+            else:
+                if one_bit == 1:
+                     signal[i * 2 + 1] = -1
+                     one_bit = 0
+                else:
+                    signal[i * 2 + 1] = 1
+                    one_bit = 1
+            prev_signal = signal[i * 2 + 1]
+
+    return signal
 
 def manchester(data):
     return
@@ -116,8 +140,6 @@ def main():
         signal = manchester(data)
     elif mode == "Differential Manchester":
         signal = diff_man(data)
-
-    # Add other encoding techniques here
 
     fig, ax = plt.subplots(figsize=(8, 4))
     ax.step(np.arange(len(signal)), signal, where='post')
