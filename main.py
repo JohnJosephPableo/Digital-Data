@@ -23,20 +23,47 @@ def nrz_i(data):
     return signal
 
 def bipolar(data):
-    signal = np.zeros(len(data) * 2)
-    prev_bit = 0
+    size = len(data)
+    signal = np.zeros(size * 2)
+    next_bit = 0
+    one_bit = 1
+    prev_signal = 0
     for i, bit in enumerate(data):
-        if bit == 0:
-            signal[i * 2] = 0
-            signal[i * 2 + 1] = 0
+
+        if i < size - 1:
+            next_bit = data[i + 1]
         else:
-            if prev_bit == 0:
-                signal[i * 2] = 1
-                signal[i * 2 + 1] = -1
+            next_bit = 0
+        
+        if bit == 0:
+            if i == 0:
+                one_bit = 0
+            signal[i * 2] = 0
+            if next_bit == 0: 
+                signal[i * 2 + 1] = 0
+            else: 
+                if one_bit == 1: 
+                    signal[i * 2 + 1] = -1
+                    one_bit = 0
+                else:
+                    signal[i * 2 + 1] = 1
+                    one_bit = 1
+                prev_signal = signal[i * 2 + 1]
+        else:
+            if i == 0:
+                prev_signal = 1
+            signal[i * 2] = prev_signal
+            if next_bit == 0:
+                signal[i * 2 + 1] = 0
             else:
-                signal[i * 2] = -1
-                signal[i * 2 + 1] = 1
-            prev_bit = 1 - prev_bit
+                if one_bit == 1:
+                     signal[i * 2 + 1] = -1
+                     one_bit = 0
+                else:
+                    signal[i * 2 + 1] = 1
+                    one_bit = 1
+            prev_signal = signal[i * 2 + 1]
+
     return signal
 
 def pseudo(data):
